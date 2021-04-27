@@ -1,0 +1,148 @@
+
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JOptionPane;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Stack;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JTextArea;
+import javax.swing.JPanel;
+
+/**
+ * A class to test Maze.java.
+ * @author Koffman and Wolfgang
+ */
+public class MazeTest extends JFrame implements GridColors {
+
+    // data field
+    private TwoDimGrid theGrid; // a 2-D grid of buttons
+
+    /** Reads data file and defines array bitMap to match data file */
+    public static void main(String[] args) {
+        try {
+            if (args.length < 1) {
+                // no file name given
+                String reply =
+                        JOptionPane.showInputDialog("Enter number of rows");
+                int nRows = Integer.parseInt(reply);
+                reply =
+                        JOptionPane.showInputDialog("Enter number of columns");
+                int nCols = Integer.parseInt(reply);
+                TwoDimGrid aGrid = new TwoDimGrid(nRows, nCols);
+                new MazeTest(aGrid);
+            } else {
+                // Create array bitMap from a data file
+                BufferedReader br =
+                        new BufferedReader(new FileReader(args[0]));
+
+                // Read each data line (a string) into
+                // gridArrayList. Each element is a char array.
+                ArrayList<char[]> gridArrayList = new ArrayList<char[]>();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    char[] row = line.toCharArray();
+                    gridArrayList.add(row);
+                }
+
+                // bitMap is a 2-D array based on data in gridArrayList
+                char[][] bitMap =
+                        gridArrayList.toArray(new char[gridArrayList.size()][]);
+                int nRows = bitMap.length;
+                int nCols = bitMap[0].length;
+
+                // create a new TwoDimGrid and recolor it based on bitMap
+                TwoDimGrid aGrid = new TwoDimGrid(nRows, nCols);
+                aGrid.recolor(bitMap, NON_BACKGROUND);
+                new MazeTest(aGrid);
+            }
+        } catch (Exception ex) {
+            System.err.println("Exception " + ex);
+            ex.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    // Builds the GUI
+    private MazeTest(TwoDimGrid aGrid) {
+        theGrid = aGrid;
+        getContentPane().add(aGrid, BorderLayout.CENTER);
+ //       Blob aBlob = new Blob(aGrid);
+        JTextArea instruct = new JTextArea(2, 20);
+        instruct.setText("Toggle a button to change its color"
+                + "\nPress SOLVE when ready");
+        getContentPane().add(instruct, BorderLayout.NORTH);
+        JButton solveButton = new JButton("SOLVE");
+        solveButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                solve();
+            }
+        });
+        JButton resetButton = new JButton("RESET");
+        resetButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                (new Maze(theGrid)).restore();
+            }
+        });
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(solveButton);
+        bottomPanel.add(resetButton);
+        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        pack();
+        setVisible(true);
+    }
+
+    
+    
+    
+    /* Hi -- I added the below calls to my methods to show that they run
+     * please run them and see the outputs for the paths
+     * Thanks!
+     */
+    public void solve() {
+    	
+    	Maze grid = new Maze(theGrid); //grid object created
+
+    	for (int i = 0; i < grid.findAllMazePaths(0,0).size(); ++i) {
+    		System.out.println("path " + (i + 1)); // path count -- path 1 is shown below text path 1
+    		System.out.println( grid.findAllMazePaths(0,0).get(i)); // all paths
+    		}
+    	
+    	
+    	System.out.println();
+    	System.out.println("Smallest path below: ");
+    	System.out.println();
+    	System.out.println(grid.findMazePathMin(0,0)); // smallest path
+    	
+    	
+    	grid.findAllMazePaths(0,0); // find all paths
+    	grid.findMazePathMin(0,0); // find path min
+    	
+    	
+    	// if found -- messages for success / boolean false == no path
+    	boolean found = grid.findMazePath();
+    	
+    	if (found) {
+    	JOptionPane.showMessageDialog(null, "Success - reset maze and try again");
+    	}
+    	
+    	else {
+    		JOptionPane.showMessageDialog(null, "No Path - reset maze and try again");
+    	}
+    	
+    }
+}
+    	
+  
+    
+
+
+
